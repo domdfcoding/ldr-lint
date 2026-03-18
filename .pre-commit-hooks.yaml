@@ -1,0 +1,6 @@
+-   id: ldr-lint
+    name: Lint LDraw files.
+    description: Linter for LDraw .ldr files.
+    entry: ldr-lint
+    language: python
+    files: ".ldr$"

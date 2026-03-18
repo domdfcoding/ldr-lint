@@ -21,3 +21,6 @@ python_versions:
  - "3.10"
  - 3.11
  - 3.12
+
+console_scripts:
+ - ldr-lint=ldr_lint.__main__:main
