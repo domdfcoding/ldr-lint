@@ -26,25 +26,44 @@ Linter for LDraw .ldr files.
 #  OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
+# stdlib
+import sys
+from typing import Iterable
+
 # 3rd party
-from click import argument
+import click
 from consolekit import click_command
 
 __all__ = ["main"]
 
 
-@argument("filename", required=True)
+@click.argument("filenames", nargs=-1, type=click.STRING)
 @click_command()
-def main(filename: str) -> None:
+def main(filenames: Iterable[str]) -> None:
 	"""
 	Linter for LDraw .ldr files.
 	"""
 
+	# 3rd party
+	from domdf_python_tools.paths import PathPlus
+
 	# this package
 	from ldr_lint import parse_file, write_to_file
 
-	lines = parse_file(filename)
-	write_to_file(lines, filename)
+	retv = 0
+
+	for filename in filenames:
+		file = PathPlus(filename)
+		original_content = file.read_text()
+
+		lines = parse_file(file)
+		write_to_file(lines, file)
+
+		new_content = file.read_text()
+
+		retv |= (new_content != original_content)
+
+	sys.exit(retv)
 
 
 if __name__ == "__main__":
