@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 #
-#  __init__.py
+#  utils.py
 """
-Linter for LDraw .ldr files.
+General utilities.
 """
 #
 #  Copyright © 2026 Dominic Davis-Foster <dominic@davis-foster.co.uk>
@@ -27,39 +27,42 @@ Linter for LDraw .ldr files.
 #
 
 # stdlib
-from typing import List
+import re
+from typing import Sequence, Union
 
-# 3rd party
-from domdf_python_tools.paths import PathPlus
-from domdf_python_tools.typing import PathLike
+__all__ = ["format_value", "join_values", "round_float", "split_ws"]
 
-# this package
-from ldr_lint.lines import LDrawElement, lookup_line
-from ldr_lint.utils import split_ws
-
-__all__ = ["parse_file"]
-
-__author__: str = "Dominic Davis-Foster"
-__copyright__: str = "2026 Dominic Davis-Foster"
-__license__: str = "MIT License"
-__version__: str = "0.0.0"
-__email__: str = "dominic@davis-foster.co.uk"
+_split_ws_re = re.compile(r"\s+")
 
 
-def parse_file(filename: PathLike) -> List[LDrawElement]:
-	lines = []
-	for line in PathPlus(filename).read_lines():
-		line = line.strip()
-		if not line:
-			continue
-
-		type_str, raw_text = split_ws(line)
-		line_type = int(type_str)
-
-		lines.append(lookup_line(line_type).parse(raw_text))
-
-	return lines
+def split_ws(string: str, maxsplit: int = 1) -> Sequence[str]:
+	return _split_ws_re.split(string, maxsplit=maxsplit)
 
 
-def write_to_file(ldraw_data: List[LDrawElement], filename: PathLike):
-	PathPlus(filename).write_lines(line.ldraw_string() for line in ldraw_data)
+def join_values(*values: Union[str, float]):
+
+	return ' '.join(map(format_value, values))
+
+
+def round_float(value: float, atol=0.001) -> float:
+	"""
+	Round floats that are close to their integer equivalent.
+	"""
+
+	rounded = round(value)
+	delta = abs(value - rounded)
+	if delta <= atol:
+		return rounded
+
+	return value
+
+
+def format_value(value: Union[str, float]) -> str:
+	if isinstance(value, str):
+		return value
+
+	elif isinstance(value, int):
+		return str(value)
+
+	else:
+		return str(round_float(value))
