@@ -28,7 +28,6 @@ LDraw line types.
 
 # stdlib
 import abc
-import re
 from typing import Type, Union
 
 # 3rd party
@@ -45,46 +44,75 @@ __all__ = ["Comment", "LDrawElement", "Line", "OptionalLine", "Quad", "SubFileRe
 
 @attrs.define
 class LDrawElement(abc.ABC):
+	"""
+	Base class for LDraw lines.
+	"""
+
 	raw_text: str
 
 	@property
 	@abc.abstractmethod
 	def type_number(self) -> int:
+		"""
+		The number for this line type.
+		"""
+
 		raise NotImplementedError
 
 	@classmethod
 	@abc.abstractmethod
 	def parse(cls: Type[Self], raw_text: str) -> Self:
+		"""
+		Parse the LDraw line.
+
+		:param raw_text:
+		"""
+
 		raise NotImplementedError
 
-	# @abc.abstractmethod
 	def ldraw_string(self) -> str:
-		# raise NotImplementedError
+		"""
+		Format as a string for an LDraw file.
+		"""
+
 		values = [self.type_number]
+		attr: attrs.Attribute
 		for attr in self.__attrs_attrs__[1:]:
-			values.append(getattr(self, attr.name))
+			values.append(getattr(self, attr.name))  # type: ignore[attr-defined]  # false positive
 
 		return join_values(*values)
 
 
 @attrs.define
 class Comment(LDrawElement):
+	"""
+	A comment or META command.
+	"""
 
 	# TODO: property for whether comment or META
 
 	comment: str
 
 	@property
-	def type_number(self) -> int:
+	def type_number(self) -> int:  # noqa: D102
 		return 0
 
 	@classmethod
 	def parse(cls: Type[Self], raw_text: str) -> Self:
+		"""
+		Parse the LDraw line.
+
+		:param raw_text:
+		"""
+
 		return cls(raw_text, raw_text)
 
 
 @attrs.define
 class SubFileReference(LDrawElement):
+	"""
+	A sub-file reference.
+	"""
 
 	colour: int
 	x: float
@@ -102,11 +130,17 @@ class SubFileReference(LDrawElement):
 	file: str
 
 	@property
-	def type_number(self) -> int:
+	def type_number(self) -> int:  # noqa: D102
 		return 1
 
 	@classmethod
 	def parse(cls: Type[Self], raw_text: str) -> Self:
+		"""
+		Parse the LDraw line.
+
+		:param raw_text:
+		"""
+
 		numbers_string, file = raw_text.rsplit(' ', 1)
 		# file, *numbers = reversed(re.split(r"\s+", raw_text))
 		# colour, x, y, z, a, b, c, d, e, f, g, h, i = reversed(map(float, numbers))
@@ -136,6 +170,9 @@ class SubFileReference(LDrawElement):
 
 @attrs.define
 class Line(LDrawElement):
+	"""
+	A line drawn between two points.
+	"""
 
 	colour: int
 	x1: float
@@ -146,11 +183,17 @@ class Line(LDrawElement):
 	z2: float
 
 	@property
-	def type_number(self) -> int:
+	def type_number(self) -> int:  # noqa: D102
 		return 2
 
 	@classmethod
 	def parse(cls: Type[Self], raw_text: str) -> Self:
+		"""
+		Parse the LDraw line.
+
+		:param raw_text:
+		"""
+
 		# colour, *numbers = map(float, re.split(r"\s+", raw_text))
 		# colour = int(colour)
 		colour_string, numbers_string = split_ws(raw_text)
@@ -165,17 +208,26 @@ class Line(LDrawElement):
 
 @attrs.define
 class Triangle(Line):
+	"""
+	A filled triangle drawn between three points.
+	"""
 
 	x3: float
 	y3: float
 	z3: float
 
 	@property
-	def type_number(self) -> int:
+	def type_number(self) -> int:  # noqa: D102
 		return 3
 
 	@classmethod
 	def parse(cls: Type[Self], raw_text: str) -> Self:
+		"""
+		Parse the LDraw line.
+
+		:param raw_text:
+		"""
+
 		# colour, *numbers = map(float, re.split(r"\s+", raw_text))
 		# colour = int(colour)
 		colour_string, numbers_string = split_ws(raw_text)
@@ -190,17 +242,26 @@ class Triangle(Line):
 
 @attrs.define
 class Quad(Triangle):
+	"""
+	A filled quadrilateral (also known as a "quad") drawn between four points.
+	"""
 
 	x4: float
 	y4: float
 	z4: float
 
 	@property
-	def type_number(self) -> int:
+	def type_number(self) -> int:  # noqa: D102
 		return 4
 
 	@classmethod
 	def parse(cls: Type[Self], raw_text: str) -> Self:
+		"""
+		Parse the LDraw line.
+
+		:param raw_text:
+		"""
+
 		# colour, *numbers = map(float, re.split(r"\s+", raw_text))
 		# colour = int(colour)
 		colour_string, numbers_string = split_ws(raw_text)
@@ -215,9 +276,12 @@ class Quad(Triangle):
 
 @attrs.define
 class OptionalLine(Quad):
+	"""
+	An optional line.
+	"""
 
 	@property
-	def type_number(self) -> int:
+	def type_number(self) -> int:  # noqa: D102
 		return 5
 
 

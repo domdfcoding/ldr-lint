@@ -37,7 +37,7 @@ from domdf_python_tools.typing import PathLike
 from ldr_lint.lines import LDrawElement, lookup_line
 from ldr_lint.utils import split_ws
 
-__all__ = ["parse_file"]
+__all__ = ["parse_file", "write_to_file"]
 
 __author__: str = "Dominic Davis-Foster"
 __copyright__: str = "2026 Dominic Davis-Foster"
@@ -47,6 +47,12 @@ __email__: str = "dominic@davis-foster.co.uk"
 
 
 def parse_file(filename: PathLike) -> List[LDrawElement]:
+	"""
+	Parse LDraw data from the given file.
+
+	:param filename:
+	"""
+
 	lines = []
 	for line in PathPlus(filename).read_lines():
 		line = line.strip()
@@ -61,5 +67,12 @@ def parse_file(filename: PathLike) -> List[LDrawElement]:
 	return lines
 
 
-def write_to_file(ldraw_data: List[LDrawElement], filename: PathLike):
+def write_to_file(ldraw_data: List[LDrawElement], filename: PathLike) -> None:
+	"""
+	Write the given LDraw lines to the given file.
+
+	:param ldraw_data:
+	:param filename:
+	"""
+
 	PathPlus(filename).write_lines(line.ldraw_string() for line in ldraw_data)

@@ -36,17 +36,32 @@ _split_ws_re = re.compile(r"\s+")
 
 
 def split_ws(string: str, maxsplit: int = 1) -> Sequence[str]:
+	"""
+	Split the given string at whitspace, up to ``maxsplit`` times.
+
+	:param string:
+	:param maxsplit:
+	"""
+
 	return _split_ws_re.split(string, maxsplit=maxsplit)
 
 
-def join_values(*values: Union[str, float]):
+def join_values(*values: Union[str, float]) -> str:
+	r"""
+	Join the given values with spaces.
+
+	:param \*values:
+	"""
 
 	return ' '.join(map(format_value, values))
 
 
-def round_float(value: float, atol=0.001) -> float:
+def round_float(value: float, atol: float = 0.001) -> float:
 	"""
-	Round floats that are close to their integer equivalent.
+	Round floats that are closer than ``atol`` to their integer equivalent.
+
+	:param value:
+	:param atol: Absolute tolerance.
 	"""
 
 	rounded = round(value)
@@ -58,6 +73,12 @@ def round_float(value: float, atol=0.001) -> float:
 
 
 def format_value(value: Union[str, float]) -> str:
+	"""
+	Format the given value as a string.
+
+	:param value:
+	"""
+
 	if isinstance(value, str):
 		return value
 
